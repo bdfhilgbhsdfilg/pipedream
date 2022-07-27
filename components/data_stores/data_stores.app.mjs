@@ -46,18 +46,13 @@ export default {
       }
 
       try {
-        return JSON.parse(this.sanitizeJson(value));
+        // using Function approach instead of eval:
+        // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/eval#never_use_eval!
+        const stringified = Function(`"use strict"; return JSON.stringify(${value})`)();
+        return JSON.parse(stringified);
       } catch (err) {
         return value;
       }
-    },
-    //Because user might enter a JSON as JS object;
-    //This method converts a JS object string to a JSON string before parsing it
-    //e.g. {a:"b", 'c':1} => {"a":"b", "c":1}
-    //We don't use eval here because of security reasons.
-    //Using eval may cause something undesired run in the script.
-    sanitizeJson(str) {
-      return str.replace(/(['"])?([a-z0-9A-Z_]+)(['"])?:/g, "\"$2\": ");
     },
   },
 };
